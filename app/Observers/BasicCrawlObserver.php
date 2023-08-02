@@ -7,7 +7,7 @@ use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class TestCrawlObserver extends CrawlObserver
+class BasicCrawlObserver extends CrawlObserver
 {
 
     public function crawled(
@@ -16,11 +16,11 @@ class TestCrawlObserver extends CrawlObserver
         ?UriInterface     $foundOnUrl = null
     ): void
     {
-        echo 'did something ' . PHP_EOL;
+        echo 'Checking: ' . $url . PHP_EOL;
     }
 
     public function crawlFailed(UriInterface $url, RequestException $requestException, ?UriInterface $foundOnUrl = null): void
     {
-        echo 'did not do something ' . PHP_EOL;
+        echo 'Failed crawl: ' . $url . PHP_EOL;
     }
 }

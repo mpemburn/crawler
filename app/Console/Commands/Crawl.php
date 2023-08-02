@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Observers\BlogObserver;
-use App\Observers\TestCrawlObserver;
+use App\Observers\BasicCrawlObserver;
+use App\Services\CrawlerService;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 use Spatie\Crawler\Crawler;
@@ -29,16 +30,6 @@ class Crawl extends Command
      */
     public function handle()
     {
-        $options = [RequestOptions::ALLOW_REDIRECTS => true, RequestOptions::TIMEOUT => 30];
-        $url = 'https://wordpress.test.clarku.edu';
-
-        //# initiate crawler
-        Crawler::create($options)
-            ->acceptNofollowLinks()
-            ->ignoreRobots()
-            ->setCrawlObserver(new TestCrawlObserver())
-            ->setMaximumResponseSize(1024 * 1024 * 2) // 2 MB maximum
-            ->setDelayBetweenRequests(500)
-            ->startCrawling($url);
+        (new CrawlerService())->loadCrawlProcesses()->run();
     }
 }
