@@ -4,16 +4,12 @@ namespace App\Console\Commands;
 
 use App\Factories\LinkFactory;
 use App\Interfaces\FindableLink;
-use App\Observers\BlogObserver;
-use App\Observers\BasicCrawlObserver;
 use App\Services\CrawlerService;
 use App\Services\FileService;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use PDOException;
-use Spatie\Crawler\Crawler;
 
 class Crawl extends Command
 {
@@ -22,7 +18,7 @@ class Crawl extends Command
      *
      * @var string
      */
-    protected $signature = 'app:crawl {--env=}';
+    protected $signature = 'app:crawl {--env=} {--flush}';
 
     /**
      * The console command description.
@@ -37,12 +33,27 @@ class Crawl extends Command
     public function handle()
     {
         $env = $this->option('env');
+        $echo = (bool)$this->option('verbose');
+        $flushData = (bool)$this->option('flush');
         $finder = $this->getLinkFinder($env);
 
-        $file = Storage::path('blogs.txt');
-        $contents = FileService::toCollection($file);
+        $file = Storage::path($env . '.csv');
+        $contents = FileService::toMap($file, ['blog_id', 'url']);
+
+        if ($flushData) {
+            $message = 'The --flush option will truncate the ' . $finder->getTable() . ' table' . PHP_EOL;
+            if (! $this->confirm($message . ' Do you wish to continue?', false)) {
+                $this->info("Process terminated by user");
+
+                return Command::FAILURE;
+            }
+
+            $finder->truncate();
+            echo $finder->getTable() . ' flushed.' . PHP_EOL;
+        }
 
         (new CrawlerService())->setEnvironment($finder)
+            ->verbose($echo)
             ->loadCrawlProcesses($contents)
             ->run();
     }
@@ -59,4 +70,5 @@ class Crawl extends Command
             die();
         }
     }
+
 }

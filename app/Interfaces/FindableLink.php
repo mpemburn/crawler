@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 /**
  * @method where(string $string, $blog_id)
+ * @method truncate()
  */
 interface FindableLink
 {

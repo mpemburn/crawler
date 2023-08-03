@@ -16,6 +16,7 @@ class CrawlerService
 {
     protected Collection $processes;
     protected FindableLink $finder;
+    protected bool $echo;
 
     public function __construct()
     {
@@ -29,20 +30,29 @@ class CrawlerService
         return $this;
     }
 
-    public function loadCrawlProcesses(Collection $urls, bool $echo = false): self
+    public function verbose(bool $echo)
     {
-        $urls->each(function ($url) use ($echo) {
-            $this->processes->push($this->fetchContent($url));
+        $this->echo = $echo;
+
+        return $this;
+    }
+
+    public function loadCrawlProcesses(Collection $rows, bool $echo = false): self
+    {
+        $rows->each(function ($row) use ($echo) {
+            $this->processes->push($this->fetchContent($row));
         });
 
         return $this;
     }
 
-    public function fetchContent($url) {
+    public function fetchContent($row) {
         $options = [RequestOptions::ALLOW_REDIRECTS => true, RequestOptions::TIMEOUT => 30];
 
-        $observer = new WebCrawlObserver();
-        $observer->setFinder($this->finder);
+        $observer = (new WebCrawlObserver())
+            ->setRow($row)
+            ->setFinder($this->finder)
+            ->verbose($this->echo);
 
         //# initiate crawler
         Crawler::create($options)
@@ -51,7 +61,7 @@ class CrawlerService
             ->setCrawlObserver($observer)
             ->setMaximumResponseSize(1024 * 1024 * 2) // 2 MB maximum
             ->setDelayBetweenRequests(500)
-            ->startCrawling($url);
+            ->startCrawling($row['url']);
         return true;
     }
 
@@ -71,5 +81,11 @@ class CrawlerService
 
         $pool->wait();
     }
+
+    public function testUrl(string $url, ?string $username = null, ?string $password = null): int
+    {
+        return (new UrlService())->testUrl($url, $username, $password);
+    }
+
 
 }

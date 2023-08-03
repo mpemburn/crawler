@@ -13,7 +13,8 @@
         "kint-php/kint": "^4.2",
         "spatie/async": "^1.5",
         "spatie/crawler": "^7.1",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "ext-curl": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

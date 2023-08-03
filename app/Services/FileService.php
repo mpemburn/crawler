@@ -25,4 +25,22 @@ class FileService
 
         return null;
     }
+
+    static function toMap(string $filename, array $headers): ?Collection
+    {
+        $contents = collect(array_map('str_getcsv', file($filename)));
+        if ($contents) {
+            return $contents->map(function ($row) use ($headers) {
+                $mapping = [];
+                foreach ($row as $index => $field) {
+                    $mapping[$headers[$index]] = $row[$index];
+                }
+                return $mapping;
+
+            });
+        }
+
+        return null;
+    }
+
 }
