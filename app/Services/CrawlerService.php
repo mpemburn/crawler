@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+use App\Interfaces\FindableLink;
 use App\Models\BlogList;
 use App\Observers\BasicCrawlObserver;
 use App\Observers\BlogObserver;
@@ -13,10 +14,18 @@ use Throwable;
 class CrawlerService
 {
     protected Collection $processes;
+    protected FindableLink $finder;
 
     public function __construct()
     {
         $this->processes = collect();
+    }
+
+    public function setEnvironment(FindableLink $finder): self
+    {
+        $this->finder = $finder;
+
+        return $this;
     }
 
     public function loadCrawlProcesses(Collection $urls, bool $echo = false): self
@@ -31,11 +40,13 @@ class CrawlerService
     public function fetchContent($url) {
         $options = [RequestOptions::ALLOW_REDIRECTS => true, RequestOptions::TIMEOUT => 30];
 
+        $observer = new BasicCrawlObserver();
+
         //# initiate crawler
         Crawler::create($options)
             ->acceptNofollowLinks()
             ->ignoreRobots()
-            ->setCrawlObserver(new BasicCrawlObserver())
+            ->setCrawlObserver($observer)
             ->setMaximumResponseSize(1024 * 1024 * 2) // 2 MB maximum
             ->setDelayBetweenRequests(500)
             ->startCrawling($url);

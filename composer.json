@@ -12,7 +12,8 @@
         "laravel/tinker": "^2.8",
         "kint-php/kint": "^4.2",
         "spatie/async": "^1.5",
-        "spatie/crawler": "^7.1"
+        "spatie/crawler": "^7.1",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
