@@ -5,6 +5,7 @@ use App\Interfaces\FindableLink;
 use App\Models\BlogList;
 use App\Observers\BasicCrawlObserver;
 use App\Observers\BlogObserver;
+use App\Observers\WebCrawlObserver;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
 use Spatie\Async\Pool;
@@ -40,7 +41,8 @@ class CrawlerService
     public function fetchContent($url) {
         $options = [RequestOptions::ALLOW_REDIRECTS => true, RequestOptions::TIMEOUT => 30];
 
-        $observer = new BasicCrawlObserver();
+        $observer = new WebCrawlObserver();
+        $observer->setFinder($this->finder);
 
         //# initiate crawler
         Crawler::create($options)
