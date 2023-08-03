@@ -19,10 +19,11 @@ class CrawlerService
         $this->processes = collect();
     }
 
-    public function loadCrawlProcesses(bool $echo = false): self
+    public function loadCrawlProcesses(Collection $urls, bool $echo = false): self
     {
-        $url = 'https://wordpress.test.clarku.edu';
-        $this->processes->push($this->fetchContent($url));
+        $urls->each(function ($url) use ($echo) {
+            $this->processes->push($this->fetchContent($url));
+        });
 
         return $this;
     }
